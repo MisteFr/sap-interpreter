@@ -1,0 +1,32 @@
+srun --gpus=1 \
+     --mem-per-cpu=128G \
+     --cpus-per-task=1 \
+     --time=12:00:00 \
+     --account=ls_krausea \
+     --gres=gpumem:40g \
+     --pty \
+     python src/compute_edge_violations.py \
+     --model_path "/cluster/project/krause/chexin/cache/hub/models--mistralai--Ministral-8B-Instruct-2410/snapshots/4847e87e5975a573a2a190399ca62cd266c899ad" \
+     --trained_weights_path "/cluster/project/infk/krause/chexin/crlhf/multirun/beaver_tails/2025-01-02/mistral_varying_edge_5_seeds_12-12-20-32/33/weights.pth" \
+     --hidden_states_path "/cluster/project/infk/krause/chexin/crlhf/multirun/beaver_tails/2024-11-19/mistral_hs_layer_36_clean_category-10-55-11/12/balanced_new_hidden_states.pth" \
+     --output_dir "outputs" \
+     --batch_size 1 \
+     --seed 42 \
+     --token_level \
+     --save_separate_datasets
+
+srun --gpus=1 \     
+     --mem-per-cpu=128G \     
+     --cpus-per-task=1 \     
+     --time=12:00:00 \     
+     --account=ls_krausea \     
+     --gres=gpumem:40g \     
+     --pty      python src/extract_sae_activations.py \    
+     --model_path "/cluster/project/krause/chexin/cache/hub/models--mistralai--Ministral-8B-Instruct-2410/snapshots/4847e87e5975a573a2a190399ca62cd266c899ad" \    
+     --trained_weights_path "/cluster/project/infk/krause/chexin/crlhf/multirun/beaver_tails/2025-01-02/mistral_varying_edge_5_seeds_12-12-20-32/33/weights.pth" \     
+     --hidden_states_path "/cluster/project/infk/krause/chexin/crlhf/multirun/beaver_tails/2024-11-19/mistral_hs_layer_36_clean_category-10-55-11/12/balanced_new_hidden_states.pth" \     
+     --output_dir "outputs" \     
+     --batch_size 1 \     
+     --seed 42 \     
+     --token_level \     
+     --save_separate_datasets

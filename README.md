@@ -1,6 +1,6 @@
 # SAP Interpreter Overview
 
-Safety Polytope (SaP) is a geometric safety layer that defines a set of half-space constraints ("facets") in the hidden-state representation space of a language model ([Learning Safety Constraints for Large Language Models](https://arxiv.org/abs/2505.24445) the technical details).  
+[Safety Polytope](https://github.com/lasgroup/SafetyPolytope/tree/main) (SaP) is a geometric safety layer that defines a set of half-space constraints ("facets") in the hidden-state representation space of a language model ([Learning Safety Constraints for Large Language Models](https://arxiv.org/abs/2505.24445) the technical details).  
 
 `sap-interpreter` provides a lightweight, **post-hoc analysis toolkit** for understanding what these facets / edges capture and whether specialization emerges inside the polytope.
 
@@ -77,9 +77,9 @@ Below is the pipeline we use in our mechanistic-interpretability studies.
 pip install .
 ```
 
-### Safety Polytope dependency
+### [Safety Polytope](https://github.com/lasgroup/SafetyPolytope) dependency
 
-All scripts expect the upstream **Safety Polytope** package (which still registers itself under the `crlhf` namespace for backward-compatibility) to be importable. Install it once per environment:
+All scripts expect the upstream **[Safety Polytope](https://github.com/lasgroup/SafetyPolytope/tree/main)** package (which still registers itself under the `crlhf` namespace for backward-compatibility) to be importable. Install it once per environment:
 
 ```bash
 git clone https://github.com/lasgroup/SafetyPolytope.git

@@ -18,7 +18,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate edge violations from polytope safety model')
+    parser = argparse.ArgumentParser(description='Generate edge/facets violations from polytope safety model')
     parser.add_argument('--model_path', type=str, required=True,
                         help='Path to the base Mistral model')
     parser.add_argument('--trained_weights_path', type=str, required=True,
@@ -35,6 +35,10 @@ def main():
                         help='Save separate .npz files for each dataset')
     parser.add_argument('--token_level', action='store_true',
                         help='Compute token-level violations instead of sample-level')
+    parser.add_argument('--steer_layer', type=int, default=30,
+                        help='Which transformer layer to extract hidden states from (default: 30)')
+    parser.add_argument('--all_datasets', action='store_true',
+                        help='Process all datasets instead of just test')
 
     args = parser.parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
@@ -52,6 +56,14 @@ def main():
 
     # 1. Load data & model
     safety_model, datasets = load_data_and_model(args)
+
+    # Filter datasets if not processing all
+    if not args.all_datasets:
+        datasets = {k: v for k, v in datasets.items() if 'test' in k.lower()}
+        if not datasets:
+            log.warning("No test dataset found in the loaded datasets")
+        else:
+            log.info(f"Processing only test datasets: {list(datasets.keys())}")
 
     # 2. Load the model/tokenizer if we need token-level analysis
     model = None
@@ -87,7 +99,7 @@ def main():
                 # Print the input text for token-level violations computation
                 log.info(f"Computing token-level violations for text [{idx}]: {text}")
                 tokens, token_violations = compute_token_level_violations(
-                    safety_model, tokenizer, text, safety_model.device
+                    safety_model, tokenizer, text, safety_model.device, steer_layer=args.steer_layer
                 )
                 dataset_token_violations.append((tokens, token_violations))
 
@@ -124,6 +136,9 @@ def main():
                     start_idx = sum(batch_sizes[:batch_idx])
                 end_idx = start_idx + inputs.size(0)
                 batch_sizes.append(inputs.size(0))
+                
+                log.info(inputs.shape)
+                log.info(inputs)
 
                 batch_texts = dataset["input_texts"][start_idx:end_idx]
                 dataset_texts.extend(batch_texts)

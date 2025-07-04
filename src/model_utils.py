@@ -2,12 +2,19 @@ import torch
 import logging
 
 log = logging.getLogger(__name__)
-STEER_LAYER = 36
 
-def compute_token_level_violations(safety_model, tokenizer, text, device):
+# facet level violations
+def compute_token_level_violations(safety_model, tokenizer, text, device, steer_layer=30):
     """
     Computes token-level violation scores for each facet of the polytope model.
-    Returns a tuple (tokens, violations_tensor).
+    Args:
+        safety_model: The safety model to use
+        tokenizer: The tokenizer to use
+        text: Input text to analyze
+        device: Device to run computations on
+        steer_layer: Which transformer layer to extract hidden states from (default: 30)
+    Returns:
+        A tuple (tokens, violations_tensor).
     """
     inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
     inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -18,7 +25,7 @@ def compute_token_level_violations(safety_model, tokenizer, text, device):
     with torch.no_grad():
         outputs = safety_model.model(**inputs, output_hidden_states=True)
         
-        hidden_states = outputs.hidden_states[STEER_LAYER].to(torch.float32)
+        hidden_states = outputs.hidden_states[steer_layer].to(torch.float32)
         
         batch_size, seq_len, hidden_dim = hidden_states.shape
         all_violations = []
@@ -34,10 +41,18 @@ def compute_token_level_violations(safety_model, tokenizer, text, device):
         violations_tensor = torch.stack(all_violations)
         return tokens, violations_tensor
 
-def compute_token_level_activations(safety_model, tokenizer, text, device):
+# concept encoder level activations
+def compute_token_level_activations(safety_model, tokenizer, text, device, steer_layer=30):
     """
     Computes token-level SAE/SAP activations for each token in the input text.
-    Returns a tuple (tokens, activations_tensor).
+    Args:
+        safety_model: The safety model to use
+        tokenizer: The tokenizer to use
+        text: Input text to analyze
+        device: Device to run computations on
+        steer_layer: Which transformer layer to extract hidden states from (default: 30)
+    Returns:
+        A tuple (tokens, activations_tensor).
     """
     inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
     inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -48,7 +63,7 @@ def compute_token_level_activations(safety_model, tokenizer, text, device):
     with torch.no_grad():
         outputs = safety_model.model(**inputs, output_hidden_states=True)
         
-        hidden_states = outputs.hidden_states[STEER_LAYER].to(torch.float32)
+        hidden_states = outputs.hidden_states[steer_layer].to(torch.float32)
         
         batch_size, seq_len, hidden_dim = hidden_states.shape
         all_activations = []

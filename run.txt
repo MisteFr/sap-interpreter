@@ -13,7 +13,8 @@ srun --gpus=1 \
      --batch_size 1 \
      --seed 42 \
      --token_level \
-     --save_separate_datasets
+     --save_separate_datasets \
+     --steer_layer 36
 
 srun --gpus=1 \     
      --mem-per-cpu=128G \     
@@ -29,4 +30,53 @@ srun --gpus=1 \
      --batch_size 1 \     
      --seed 42 \     
      --token_level \     
-     --save_separate_datasets
+     --save_separate_datasets \
+     --steer_layer 36
+
+
+----
+14 cat 
+
+srun --gpus=1 \
+     --mem-per-cpu=128G \
+     --cpus-per-task=1 \
+     --time=12:00:00 \
+     --account=ls_krausea \
+     --gres=gpumem:60g \
+     --pty \
+     python src/recover_texts.py \
+     --hidden_states "/cluster/project/infk/krause/chexin/crlhf/multirun/beaver_tails/2024-11-14/mistral_hs_layer_30_no_prompt-11-09-32/0/all_hidden_states.pth" \
+     --config "/cluster/project/krause/chexin/crlhf/multirun/beaver_tails/2024-11-14/mistral_hs_layer_30_no_prompt-11-09-32/0/.hydra/config.yaml" \
+     --output_dir "/cluster/home/abigot/sap-interpreter/converted/" \
+     --model_path "/cluster/project/krause/chexin/cache/hub/models--mistralai--Ministral-8B-Instruct-2410/snapshots/4847e87e5975a573a2a190399ca62cd266c899ad" \    
+     --layer_number 30
+
+srun --gpus=1 \
+     --mem-per-cpu=128G \
+     --cpus-per-task=1 \
+     --time=12:00:00 \
+     --account=ls_krausea \
+     --gres=gpumem:20g \
+     --pty \
+     python src/compare_hidden_states.py \
+     --old_file "/cluster/project/infk/krause/chexin/crlhf/multirun/beaver_tails/2024-11-14/mistral_hs_layer_30_no_prompt-11-09-32/0/all_hidden_states.pth" \
+     --new_file "/cluster/home/abigot/crlhf/data/beaver_tails/ministral-8b/hidden_states_all.pth"
+
+
+srun --gpus=1 \
+     --mem-per-cpu=128G \
+     --cpus-per-task=1 \
+     --time=12:00:00 \
+     --account=ls_krausea \
+     --gres=gpumem:20g \
+     --pty \
+     python src/compute_edge_violations.py \
+     --model_path "/cluster/project/krause/chexin/cache/hub/models--mistralai--Ministral-8B-Instruct-2410/snapshots/4847e87e5975a573a2a190399ca62cd266c899ad" \
+     --trained_weights_path "/cluster/project/krause/chexin/crlhf/multirun/beaver_tails/2025-01-02/mistral_varying_edge_5_seeds_14-13-20-57/34/weights.pth" \
+     --hidden_states_path "/cluster/home/abigot/crlhf/data/beaver_tails/ministral-8b/hidden_states_all.pth" \
+     --output_dir "outputs" \
+     --batch_size 1 \
+     --seed 42 \
+     --token_level \
+     --save_separate_datasets \
+     --steer_layer 30

@@ -18,7 +18,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 def main():
-    parser = argparse.ArgumentParser(description='Extract SAP/SAE activations from hidden states')
+    parser = argparse.ArgumentParser(description='Extract concept encoder activations from hidden states')
     parser.add_argument('--model_path', type=str, required=True,
                         help='Path to the Mistral model')
     parser.add_argument('--trained_weights_path', type=str, required=True,
@@ -35,6 +35,8 @@ def main():
                         help='Save separate .npz files for each dataset')
     parser.add_argument('--token_level', action='store_true',
                         help='Compute token-level activations instead of sample-level')
+    parser.add_argument('--steer_layer', type=int, default=30,
+                        help='Which transformer layer to extract hidden states from (default: 36)')
     
     args = parser.parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
@@ -44,7 +46,7 @@ def main():
         token_dir = os.path.join(args.output_dir, "token_level")
         os.makedirs(token_dir, exist_ok=True)
     
-    log.info("Starting SAP/SAE activations extraction...")
+    log.info("Starting concept encoder activations extraction...")
     log.info(f"Arguments: {args}")
 
     # Load data & safety model
@@ -85,7 +87,7 @@ def main():
             for idx, text in enumerate(tqdm(dataset["input_texts"], desc=f"{dataset_name} token-level")):
                 log.info(f"Computing token-level activations for text [{idx}]: {text}")
                 tokens, token_activations = compute_token_level_activations(
-                    safety_model, tokenizer, text, safety_model.device
+                    safety_model, tokenizer, text, safety_model.device, steer_layer=args.steer_layer
                 )
                 dataset_token_activations.append((tokens, token_activations))
                 
@@ -191,7 +193,7 @@ def main():
         )
         log.info(f"Combined token-level data saved to {combined_token_path}")
 
-    log.info("Done extracting SAP/SAE activations.")
+    log.info("Done extracting concept encoder activations.")
 
 if __name__ == "__main__":
     main()

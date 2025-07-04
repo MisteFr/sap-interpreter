@@ -20,13 +20,13 @@ setup(
             "extract-sae-activations=extract_sae_activations:main"
         ],
     },
-    author="Arthur",
+    author="Arthur Bigot",
     author_email="bigot.arthur@gmail.com",
-    description="SAP Interpreter - A tool for interpreting SAP models",
+    description="SaP Interpreter - A tool for interpreting SaP",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/MisteFr/sap-interpreter",
-    keywords="sap, interpreter, polytope, safety, ai, ml",
+    keywords="SaP, interpreter, polytope, safety, ai, ml, mechanistic interpretability",
     python_requires=">=3.7",
     classifiers=[],
 ) 
